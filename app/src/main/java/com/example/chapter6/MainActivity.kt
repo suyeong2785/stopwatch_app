@@ -1,5 +1,7 @@
 package com.example.chapter6
 
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.TextView
@@ -51,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         initCountdownViews()
     }
 
-    private fun initCountdownViews(){
+    private fun initCountdownViews() {
         binding.countdownTextView.text = String.format("%02d", countdownSecond)
         binding.countdownProgressBar.progress = 100
     }
@@ -82,7 +84,12 @@ class MainActivity : AppCompatActivity() {
                     binding.countdownTextView.text = String.format("%02d", seconds)
                     binding.countdownProgressBar.progress = progress.toInt()
                 }
-
+            }
+            if (currentDeciSecond == 0 && currentCountdownDeciSecond < 31 && currentCountdownDeciSecond % 10 == 0) {
+                val toneType =
+                    if (currentCountdownDeciSecond == 0) ToneGenerator.TONE_CDMA_HIGH_L else ToneGenerator.TONE_CDMA_ANSWER
+                ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME)
+                    .startTone(toneType, 100)
             }
         }
     }
@@ -100,6 +107,8 @@ class MainActivity : AppCompatActivity() {
         binding.countdownGroup.isVisible = true
 
         initCountdownViews()
+
+        binding.lapContainerLinearLayout.removeAllViews()
     }
 
     private fun pause() {
@@ -108,6 +117,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun lap() {
+        if (currentDeciSecond == 0) return
+
         val container = binding.lapContainerLinearLayout
         val lapTextView = TextView(this).apply {
             textSize = 20f
@@ -124,7 +135,7 @@ class MainActivity : AppCompatActivity() {
 
             setPadding(30)
         }.let { labTextView ->
-            container.addView(labTextView,0)
+            container.addView(labTextView, 0)
         }
 
 
